@@ -33,7 +33,7 @@ Total Epochs - 100
 
 ![logs2](https://github.com/KillerStrike17/85-Cifar-10-using-depthwise-seperable-and-dilated-kernels/raw/main/Assets/logs2.PNG)
 
-![logs3](https://github.com/KillerStrike17/85-Cifar-10-using-depthwise-seperable-and-dilated-kernels/raw/main/Assets/logs4.PNG)
+![logs3](https://github.com/KillerStrike17/85-Cifar-10-using-depthwise-seperable-and-dilated-kernels/raw/main/Assets/logs3.PNG)
 
 ![logs4](https://github.com/KillerStrike17/85-Cifar-10-using-depthwise-seperable-and-dilated-kernels/raw/main/Assets/logs4.PNG)
 
