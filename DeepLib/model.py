@@ -6,84 +6,95 @@ torch.manual_seed(1)
 
 GROUP_SIZE = 3
 
+class SeparableConv2d(nn.Module):
+  def __init__(self, in_channels, out_channels, kernel_size, bias=False):
+      super(SeparableConv2d, self).__init__()
+      self.depthwise = nn.Conv2d(in_channels, in_channels, kernel_size=kernel_size, 
+                                 groups=in_channels, bias=bias, padding=1)
+      self.pointwise = nn.Conv2d(in_channels, out_channels, 
+                                kernel_size=1, bias=bias)
+
+  def forward(self, x):
+      out = self.depthwise(x)
+      out = self.pointwise(out)
+      return out
+
 class CifarNetDilated(nn.Module):
     #This defines the structure of the NN.
-    def __init__(self, dropout=0.1):
+    def __init__(self, dropout=0.05):
         super(CifarNetDilated, self).__init__()
         # DROPOUT_VALUE = 0.1
-        self.conv1 = nn.Conv2d(3, 24, kernel_size=3,bias = False, padding = 1)
-        self.batch1 = nn.BatchNorm2d(24)
+        self.conv1 = nn.Conv2d(3, 32, kernel_size=3,bias = False)
+        self.batch1 = nn.BatchNorm2d(32)
         self.dropout1 = nn.Dropout2d(dropout)
-        self.conv2 = nn.Conv2d(24, 32, kernel_size=3,bias = False)
+        self.conv2 = nn.Conv2d(32, 32, kernel_size=3,bias = False, padding = 1)
         self.batch2 = nn.BatchNorm2d(32)
         self.dropout2 = nn.Dropout2d(dropout)
         self.dil1 = nn.Conv2d(32, 32, kernel_size=3,bias = False, dilation = 2)
         self.batch3 = nn.BatchNorm2d(32)
         self.dropout3 = nn.Dropout2d(dropout)
         
-        self.conv4 = nn.Conv2d(32, 40, kernel_size=3,bias = False, padding = 1)
+        self.conv4 = nn.Conv2d(32, 40, kernel_size=3,bias = False)
         self.batch4 = nn.BatchNorm2d(40)
         self.dropout4 = nn.Dropout2d(dropout)
-        self.conv5 = nn.Conv2d(40, 40, kernel_size=3,bias = False)
+        self.conv5 = nn.Conv2d(40, 40, kernel_size=3,bias = False, padding = 1)
         self.batch5 = nn.BatchNorm2d(40)
         self.dropout5 = nn.Dropout2d(dropout)
         self.dil2 = nn.Conv2d(40, 40, kernel_size=3,bias = False, dilation = 2)
         self.batch6 = nn.BatchNorm2d(40)
         self.dropout6 = nn.Dropout2d(dropout)
         
-        self.conv7 = nn.Conv2d(40, 48, kernel_size=3,bias = False, padding = 1)
+        self.conv7 = nn.Conv2d(40, 48, kernel_size=3,bias = False)
         self.batch7 = nn.BatchNorm2d(48)
         self.dropout7 = nn.Dropout2d(dropout)
-        self.conv8 = nn.Conv2d(48, 48, kernel_size=3,bias = False)
+        self.conv8 = nn.Conv2d(48, 48, kernel_size=3,bias = False, padding = 1)
         self.batch8 = nn.BatchNorm2d(48)
         self.dropout8 = nn.Dropout2d(dropout)
         self.dil3 = nn.Conv2d(48, 48, kernel_size=3,bias = False, dilation = 2)
         self.batch9 = nn.BatchNorm2d(48)
         self.dropout9 = nn.Dropout2d(dropout)
         
-        self.conv10 = nn.Conv2d(48, 56, kernel_size=3,bias = False, padding = 1)
+        self.conv10 = nn.Conv2d(48, 56, kernel_size=3,bias = False)
         self.batch10 = nn.BatchNorm2d(56)
         self.dropout10 = nn.Dropout2d(dropout)
-        self.conv11 = nn.Conv2d(56, 56, kernel_size=3,bias = False)
+        self.conv11 = nn.Conv2d(56, 56, kernel_size=3,bias = False, padding = 1)
         self.batch11 = nn.BatchNorm2d(56)
         self.dropout11 = nn.Dropout2d(dropout)
-        self.dil4 = nn.Conv2d(56, 56, kernel_size=3,bias = False, dilation = 2)
-        self.batch12 = nn.BatchNorm2d(56)
+        # self.dil4 = nn.Conv2d(56, 56, kernel_size=3,bias = False)
+        self.dep1 = SeparableConv2d(56,64,kernel_size=3,bias = False)
+        self.batch12 = nn.BatchNorm2d(64)
         self.dropout12 = nn.Dropout2d(dropout)
         
-        self.avgpool = nn.AvgPool2d(8)
-        self.fc1 = nn.Linear(112,10)
+        self.avgpool = nn.AvgPool2d(12)
+        self.fc1 = nn.Linear(64,10)
+        # self.fc2 = nn.Linear(50,10)
 
-        
-        
-        
-        
-        
-        
     def forward(self, x):
         x = self.dropout1(self.batch1(F.relu(self.conv1(x))))
-        x = self.dropout2(self.batch2(F.relu(self.conv2(x))))
+        x = x + self.dropout2(self.batch2(F.relu(self.conv2(x))))
         x = self.dropout3(self.batch3(F.relu(self.dil1(x))))
         x = self.dropout4(self.batch4(F.relu(self.conv4(x))))
-        x = self.dropout5(self.batch5(F.relu(self.conv5(x))))
+        x = x+ self.dropout5(self.batch5(F.relu(self.conv5(x))))
         x = self.dropout6(self.batch6(F.relu(self.dil2(x))))
         x = self.dropout7(self.batch7(F.relu(self.conv7(x))))
-        x = self.dropout8(self.batch8(F.relu(self.conv8(x))))
+        x = x+ self.dropout8(self.batch8(F.relu(self.conv8(x))))
         x = self.dropout9(self.batch9(F.relu(self.dil3(x))))
         x = self.dropout10(self.batch10(F.relu(self.conv10(x))))
-        x = self.dropout11(self.batch11(F.relu(self.conv11(x))))
-        x = self.dropout12(self.batch12(F.relu(self.dil4(x))))
-        print("Shape:",x.shape)
+        x = x + self.dropout11(self.batch11(F.relu(self.conv11(x))))
+        # x = self.dropout12(self.batch12(F.relu(self.dil4(x))))
+        x = self.dropout12(self.batch12(F.relu(self.dep1(x))))
+        # print("Shape:",x.shape)
         x = self.avgpool(x)
-        print("Shape:",x.shape)
-        x = x.view(-1,112)
+        # print("Shape:",x.shape)
+        x = x.view(-1,64)
+        # print("Shape:",x.shape)
         x = self.fc1(x)
-        
-        
-
-        return F.log_softmax(x, dim=-1)
-
-
+        # print("Shape:",x.shape)
+        # x = self.fc2(x)
+        # print("Shape:",x.shape)
+        val = F.log_softmax(x, dim=1)
+        # print("Shape:",val.shape)
+        return val
 
 class Net(nn.Module):
     #This defines the structure of the NN.

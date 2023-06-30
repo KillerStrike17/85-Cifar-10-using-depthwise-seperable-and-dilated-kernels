@@ -33,9 +33,9 @@ def train(use_l1=False, lambda_l1=5e-4):
             data, target = data.to(device), target.to(device)
             optimizer.zero_grad()
             output = model(data)
-            print("DataShape:",data.shape)
-            print("Target Shape:",target.shape)
-            print("Output Shape:",output.shape)
+            # print("DataShape:",data.shape)
+            # print("Target Shape:",target.shape)
+            # print("Output Shape:",output.shape)
             loss = F.nll_loss(output, target)
             if use_l1 == True:
                 l1 = 0

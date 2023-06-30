@@ -18,7 +18,7 @@ def get_a_train_transform():
         A.ShiftScaleRotate(shift_limit=0.09, scale_limit=0.09, rotate_limit=7, p=0.5),
         # A.Affine(scale=0.9, translate_percent=(-0.1, 0.1), rotate=7, shear=[-7, 7], cval=0, fit_output=False, p=0.2),
         # A.RandomResizedCrop(height=32, width=32, scale=(0.8, 1.0), p=0.5),
-        A.CoarseDropout(max_holes = 1, max_height=16, max_width=16, min_holes = 1, min_height=1, min_width=1, fill_value=(0.49139968, 0.48215827 ,0.44653124), mask_fill_value = None),
+        A.CoarseDropout(max_holes = 1, max_height=16, max_width=16, min_holes = 1, min_height=16, min_width=16, fill_value=(0.49139968, 0.48215827 ,0.44653124), mask_fill_value = None),
         # A.RandomBrightnessContrast(p=0.5),
         #         A.GaussNoise(p=0.2),
         #         A.Equalize(p=0.2),
